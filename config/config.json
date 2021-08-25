@@ -1,17 +1,23 @@
 {
 	"development": {
-		"username": "root",
-		"password": "password",
+		"username": "postgres",
+		"password": "postgres",
 		"database": "forum_dev",
 		"host": "127.0.0.1",
-		"dialect": "mysql"
+		"port": "5432",
+		"dialect": "postgres",
+		"pool": {
+      "max": 100,
+      "idle": 600000,
+      "acquire": 600000
+    }
 	},
 	"test": {
 		"username": "root",
 		"password": "password",
 		"database": "forum_test",
 		"host": "127.0.0.1",
-		"dialect": "mysql"
+		"dialect": "postgres"
 	},
 	"production": {
 		"use_env_variable": "DATABASE_URL"

@@ -6,26 +6,26 @@ module.exports = (sequelize, DataTypes) => {
 				isIP: true
 			}
 		}
-	}, {
-		classMethods: {
-			associate (models) {
-				Ip.belongsToMany(models.User, { through: 'UserIp' })
-			},
-			async createIfNotExists (ipAddress, user) {
-				 let existingIp = await Ip.findOne({
-				 	where: { ip: ipAddress },
-				 	include: [{
-				 		model: sequelize.models.User,
-						where: { id: user.id }
-				 	}]
-				 })
-
-				 if(!existingIp) {
-				 	let ip = await Ip.create({ ip: ipAddress })
-				 	await ip.addUser(user)
-				 }
-			}
-		}
 	})
+
+	Ip.associate = function (models) {
+		Ip.belongsToMany(models.User, { through: 'UserIp' })
+	}
+
+	Ip.createIfNotExists = async function (ipAddress, user) {
+		let existingIp = await Ip.findOne({
+			where: { ip: ipAddress },
+			include: [{
+				model: sequelize.models.User,
+			 where: { id: user.id }
+			}]
+		})
+
+		if(!existingIp) {
+			let ip = await Ip.create({ ip: ipAddress })
+			await ip.addUser(user)
+		}
+ }
+
 	return Ip
 }

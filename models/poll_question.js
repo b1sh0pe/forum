@@ -17,15 +17,13 @@ module.exports = (sequelize, DataTypes) => {
 				}
 			}
 		}
-	}, {
-		classMethods: {
-			associate (models) {
-				PollQuestion.belongsTo(models.User)
-				PollQuestion.hasMany(models.PollAnswer)
-				PollQuestion.hasMany(models.PollVote)
-			}
-		}
 	})
+
+	PollQuestion.associate = function (models) {
+		PollQuestion.belongsTo(models.User)
+		PollQuestion.hasMany(models.PollAnswer)
+		PollQuestion.hasMany(models.PollVote)
+	}
 
 	return PollQuestion
 }

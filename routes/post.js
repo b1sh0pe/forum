@@ -6,7 +6,7 @@ let { User, Thread, Post, Notification, Ban, Sequelize, sequelize } = require('.
 
 router.get('/:post_id', async (req, res, next) => {
 	try {
-		let post = await Post.findById(req.params.post_id, { include: Post.includeOptions() })
+		let post = await Post.findByPk(req.params.post_id, { include: Post.includeOptions() })
 		if(!post) throw Errors.sequelizeValidation(Sequelize, {
 			error: 'post does not exist',
 			path: 'id'
@@ -30,7 +30,7 @@ router.all('*', (req, res, next) => {
 
 router.put('/:post_id/like', async (req, res, next) => {
 	try {
-		let post = await Post.findById(req.params.post_id)
+		let post = await Post.findByPk(req.params.post_id)
 		let user = await User.findOne({ where: { username: req.session.username }})
 		
 		if(!post) throw Errors.invalidParameter('id', 'post does not exist')
@@ -45,7 +45,7 @@ router.put('/:post_id/like', async (req, res, next) => {
 
 router.delete('/:post_id/like', async (req, res, next) => {
 	try {
-		let post = await Post.findById(req.params.post_id)
+		let post = await Post.findByPk(req.params.post_id)
 		let user = await User.findOne({ where: { username: req.session.username }})
 		
 		if(!post) throw Errors.invalidParameter('id', 'post does not exist')
@@ -154,7 +154,7 @@ router.all('*', (req, res, next) => {
 
 router.delete('/:post_id', async (req, res, next) => {
 	try {
-		let post = await Post.findById(req.params.post_id)
+		let post = await Post.findByPk(req.params.post_id)
 		if(!post) throw Errors.sequelizeValidation(Sequelize, {
 			error: 'post does not exist',
 			path: 'id'

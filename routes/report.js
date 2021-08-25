@@ -16,7 +16,7 @@ router.all('*', (req, res, next) => {
 })
 router.post('/', async (req, res, next) => {
 	try {
-		let post = await Post.findById(req.body.postId)
+		let post = await Post.findByPk(req.body.postId)
 
 		if(!post) throw Report.InvalidPostId(req.body.postId)
 
@@ -58,7 +58,7 @@ router.get('/', async (req, res, next) => {
 })
 router.delete('/:id', async (req, res, next) => {
 	try {
-		let report = await Report.findById(req.params.id)
+		let report = await Report.findByPk(req.params.id)
 		if(!report) throw Report.InvalidPostId(req.params.id)
 
 		await report.destroy()

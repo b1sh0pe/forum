@@ -79,96 +79,6 @@ module.exports = (sequelize, DataTypes) => {
 			}
 		}
 	}, {
-		instanceMethods: {
-			async updatePassword (currentPassword, newPassword) {
-				if(currentPassword === newPassword) {
-					throw Errors.passwordSame
-				} else if(typeof currentPassword !== 'string' || typeof newPassword !== 'string') {
-					throw new sequelize.ValidationError('password must be a string')
-				}
-
-				let correctPassword = await bcrypt.compare(currentPassword, this.hash)
-
-				if(correctPassword) {
-					await this.update({ hash: newPassword })
-				} else {
-					throw Errors.invalidLoginCredentials
-				}
-			},
-			async comparePassword (password) {
-				return await bcrypt.compare(password, this.hash)
-			},
-			async getMeta (limit) {
-				let Post = sequelize.models.Post
-				let meta = {}
-
-				let nextId = await pagination.getNextIdDesc(Post, { userId: this.id }, this.Posts)
-
-				if(nextId === null) {
-					meta.nextURL = null
-					meta.nextPostsCount = 0
-				} else {
-					meta.nextURL =
-						`/api/v1/user/${this.username}?posts=true&limit=${limit}&from=${nextId - 1}`
-
-					meta.nextPostsCount = await pagination.getNextCount(
-						Post, this.Posts, limit,
-						{ UserId: this.id },
-						true
-					)
-				}
-
-				return meta
-			}
-		},
-		classMethods: {
-			associate (models) {
-				User.hasMany(models.Post)
-				User.hasMany(models.Thread)
-				User.belongsToMany(models.Ip, { through: 'UserIp' })
-			},
-			includeOptions (from, limit) {
-				let models = sequelize.models
-				let options = models.Post.includeOptions()
-
-				return [{
-					model: models.Post,
-					include: options,
-					limit,
-					where: { postNumber: { $gte: from } },
-					order: [['id', 'ASC']]
-				}]
-			},
-			async canBeAdmin (token) {
-				let { User, AdminToken } = sequelize.models
-				
-				let adminUser = await User.findOne({ where: {
-					admin: true
-				}})
-
-				if(adminUser) {
-					if(token) {
-						let adminToken = await AdminToken.findOne({ where: { token } })
-
-						if(adminToken && adminToken.isValid()) {
-							await adminToken.destroy()
-
-							return true
-						} else {
-							throw Errors.invalidToken
-						}
-					} else {
-						throw Errors.sequelizeValidation(sequelize, {
-							error: 'Missing token',
-							path: 'token'
-						})
-					}
-	
-				} else {
-					return true
-				}
-			}
-		},
 		hooks: {
 			async afterValidate(user, options) {
 				if(user.changed('hash') && user.hash.length <= 50) {
@@ -180,6 +90,98 @@ module.exports = (sequelize, DataTypes) => {
 			}
 		}
 	})
+
+	User.associate = function (models) {
+		User.hasMany(models.Post)
+		User.hasMany(models.Thread)
+		User.belongsToMany(models.Ip, { through: 'UserIp' })
+	}
+
+	User.includeOptions = function (from, limit) {
+		let models = sequelize.models
+		let options = models.Post.includeOptions()
+
+		return [{
+			model: models.Post,
+			include: options,
+			limit,
+			where: { postNumber: { $gte: from } },
+			order: [['id', 'ASC']]
+		}]
+	}
+
+	User.canBeAdmin = async function (token) {
+		let { User, AdminToken } = sequelize.models
+		
+		let adminUser = await User.findOne({ where: {
+			admin: true
+		}})
+
+		if(adminUser) {
+			if(token) {
+				let adminToken = await AdminToken.findOne({ where: { token } })
+
+				if(adminToken && adminToken.isValid()) {
+					await adminToken.destroy()
+
+					return true
+				} else {
+					throw Errors.invalidToken
+				}
+			} else {
+				throw Errors.sequelizeValidation(sequelize, {
+					error: 'Missing token',
+					path: 'token'
+				})
+			}
+
+		} else {
+			return true
+		}
+	}
+
+	User.prototype.updatePassword = async function (currentPassword, newPassword) {
+		if(currentPassword === newPassword) {
+			throw Errors.passwordSame
+		} else if(typeof currentPassword !== 'string' || typeof newPassword !== 'string') {
+			throw new sequelize.ValidationError('password must be a string')
+		}
+
+		let correctPassword = await bcrypt.compare(currentPassword, this.hash)
+
+		if(correctPassword) {
+			await this.update({ hash: newPassword })
+		} else {
+			throw Errors.invalidLoginCredentials
+		}
+	}
+
+	User.prototype.comparePassword = async function (password) {
+		return await bcrypt.compare(password, this.hash)
+	}
+
+	User.prototype.getMeta = async function (limit) {
+		let Post = sequelize.models.Post
+		let meta = {}
+
+		let nextId = await pagination.getNextIdDesc(Post, { userId: this.id }, this.Posts)
+
+		if(nextId === null) {
+			meta.nextURL = null
+			meta.nextPostsCount = 0
+		} else {
+			meta.nextURL =
+				`/api/v1/user/${this.username}?posts=true&limit=${limit}&from=${nextId - 1}`
+
+			meta.nextPostsCount = await pagination.getNextCount(
+				Post, this.Posts, limit,
+				{ UserId: this.id },
+				true
+			)
+		}
+
+		return meta
+	}
 
 	return User
 }

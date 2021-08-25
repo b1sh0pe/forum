@@ -181,7 +181,7 @@ router.post('/:username/picture', upload.single('picture'), async (req, res, nex
 		if(req.session.username !== req.params.username) {
 			throw Errors.requestNotAuthorized
 		} else {
-			let user = await User.findById(req.session.UserId)
+			let user = await User.findByPk(req.session.UserId)
 			let picture = await ProfilePicture.findOne({
 				where: { UserId: user.id}
 			})
@@ -214,7 +214,7 @@ router.delete('/:username/picture', async (req, res, next) => {
 		if(req.session.username !== req.params.username) {
 			throw Errors.requestNotAuthorized
 		} else {
-			let user = await User.findById(req.session.UserId)
+			let user = await User.findByPk(req.session.UserId)
 			let picture = await ProfilePicture.findOne({
 				where: { UserId: user.id}
 			})

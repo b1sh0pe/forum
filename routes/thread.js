@@ -8,7 +8,7 @@ let pagination = require('../lib/pagination.js')
 router.get('/:thread_id', async (req, res, next) => {
 	try {
 		let { from, limit } = pagination.getPaginationProps(req.query)
-		let thread = await Thread.findById(req.params.thread_id, {
+		let thread = await Thread.findByPk(req.params.thread_id, {
 			include: Thread.includeOptions(from, limit)
 		}) 
 		if(!thread) throw Errors.invalidParameter('id', 'thread does not exist')
@@ -84,7 +84,9 @@ router.all('*', (req, res, next) => {
 
 router.delete('/:thread_id', async (req, res, next) => {
 	try {
-		let thread = await Thread.findById(req.params.thread_id)
+		let thread = await Thread.findByPk(req.params.thread_id)
+
+		console.log(thread);
 
 		if(!thread) {
 			throw Errors.sequelizeValidation(Sequelize, {
@@ -118,7 +120,7 @@ router.delete('/:thread_id', async (req, res, next) => {
 
 router.put('/:thread_id', async (req, res, next) => {
 	try {
-		let thread = await Thread.findById(req.params.thread_id)
+		let thread = await Thread.findByPk(req.params.thread_id)
 
 		if(!thread) {
 			res.status(400)

@@ -5,11 +5,6 @@ module.exports = (sequelize, DataTypes) => {
 		file: DataTypes.BLOB('long'),
 		mimetype: DataTypes.STRING
 	}, {
-		classMethods: {
-			associate (models) {
-				ProfilePicture.belongsTo(models.User)
-			}
-		},
 		hooks: {
 			beforeUpdate (profilePicture, options, cb) {
 				sharp(profilePicture.file)
@@ -22,6 +17,10 @@ module.exports = (sequelize, DataTypes) => {
 			}
 		}
 	})
+
+	ProfilePicture.associate = function (models) {
+		ProfilePicture.belongsTo(models.User)
+	}
 
 	return ProfilePicture
 }

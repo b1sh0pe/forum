@@ -106,6 +106,8 @@ router.get('/thread', async (req, res, next) => {
 			}
 		}, []);
 
+		console.log(whereClause);
+
 		let latestPosts = await Post.findAll({
 			where: {
 				$or: whereClause

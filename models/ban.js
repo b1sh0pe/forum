@@ -49,76 +49,78 @@ module.exports = (sequelize, DataTypes) => {
 				}
 			}
 		}
-	}, {
-		classMethods: {
-			associate (models) {
-				Ban.belongsTo(models.User)
-			},
-			async getBanInstance (username) {
-				let user = await sequelize.models.User.findOne({ where: { username } })
-				let ban = await Ban.findOne({ where: { UserId: user.id } })
-
-				return ban
-			},
-			async canCreatePosts (username) {
-				let ban = await this.getBanInstance(username)
-
-				if(ban && !ban.canCreatePosts) {
-					throw Errors.sequelizeValidation(sequelize.Sequelize, {
-						error: ban.message || 'You have been banned from posting'
-					})
-				} else {
-					return false
-				}
-			},
-			async canCreateThreads (username) {
-				let ban = await this.getBanInstance(username)
-
-				if(ban && !ban.canCreateThreads) {
-					throw Errors.sequelizeValidation(sequelize.Sequelize, {
-						error: ban.message || 'You have been banned from creating threads'
-					})
-				} else {
-					return false
-				}
-			},
-			async isIpBanned (ip, username) {
-				let { User, Ip } = sequelize.models
-
-				if(username) {
-					let user = await User.findOne({ where: {
-						username
-					}})
-					if(user && user.admin) return false
-				}
-		
-
-				let users = await User.findAll({
-					include: [{
-						model: Ip,
-						where: { ip }
-					}]
-				})
-				if(!users.length) return false
-
-				let ban = await Ban.findOne({ where: {
-					UserId: {
-						$in: users.map(u => u.id)
-					},
-					ipBanned: true 
-				} })
-
-				if(ban) {
-					throw Errors.sequelizeValidation(sequelize.Sequelize, {
-						error: ban.message ||
-						'This IP has been banned from creating accounts or logging in'
-					})
-				} else {
-					return false
-				}
-			}
-		}
 	})
+
+	Ban.associate = function (models) {
+		Ban.belongsTo(models.User);
+	}
+
+	Ban.getBanInstance = async function (username) {
+		let user = await sequelize.models.User.findOne({ where: { username } })
+		let ban = await Ban.findOne({ where: { UserId: user.id } })
+
+		return ban
+	}
+
+	Ban.canCreatePosts = async function (username) {
+		let ban = await this.getBanInstance(username)
+
+		if(ban && !ban.canCreatePosts) {
+			throw Errors.sequelizeValidation(sequelize.Sequelize, {
+				error: ban.message || 'You have been banned from posting'
+			})
+		} else {
+			return false
+		}
+	}
+
+	Ban.canCreateThreads = async function (username) {
+		let ban = await this.getBanInstance(username)
+
+		if(ban && !ban.canCreateThreads) {
+			throw Errors.sequelizeValidation(sequelize.Sequelize, {
+				error: ban.message || 'You have been banned from creating threads'
+			})
+		} else {
+			return false
+		}
+	}
+
+	Ban.isIpBanned = async function (ip, username) {
+		let { User, Ip } = sequelize.models
+
+		if(username) {
+			let user = await User.findOne({ where: {
+				username
+			}})
+			if(user && user.admin) return false
+		}
+
+
+		let users = await User.findAll({
+			include: [{
+				model: Ip,
+				where: { ip }
+			}]
+		})
+		if(!users.length) return false
+
+		let ban = await Ban.findOne({ where: {
+			UserId: {
+				$in: users.map(u => u.id)
+			},
+			ipBanned: true 
+		} })
+
+		if(ban) {
+			throw Errors.sequelizeValidation(sequelize.Sequelize, {
+				error: ban.message ||
+				'This IP has been banned from creating accounts or logging in'
+			})
+		} else {
+			return false
+		}
+	}
 
 	return Ban
 }

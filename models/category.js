@@ -44,13 +44,12 @@ module.exports = (sequelize, DataTypes) => {
 					category.value = underscored
 				}
 			}
-		},
-		classMethods: {
-			associate (models) {
-				Category.hasMany(models.Thread)
-			}
 		}
 	})
+
+	Category.associate = function (models) {
+		Category.hasMany(models.Thread);
+	}
 
 	return Category
 }

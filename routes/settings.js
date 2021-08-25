@@ -6,7 +6,7 @@ let { Settings, Sequelize } = require('../models')
 
 router.get('/', async (req, res, next) => {
 	try {
-		let settings = await Settings.get()
+		let settings = await Settings.findByPk(1)
 
 		if(!settings) throw Errors.noSettings
 
@@ -40,7 +40,10 @@ router.put('/', async (req, res, next) => {
 			params.showDescription = req.body.showDescription
 		}
 
-		let updatedSettings = await Settings.set(params)
+		let updatedSettings = await Settings.upsert({
+			id: 1,
+			...params
+		});
 
 		res.json(params)
 		

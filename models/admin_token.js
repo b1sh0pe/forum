@@ -15,18 +15,16 @@ module.exports = (sequelize, DataTypes) => {
 				}
 			}
 		}
-	}, {
-		instanceMethods: {
-			isValid () {
-				let ms = Date.now() - this.createdAt
-				let dayMs = 1000*60*60*24
-				
-				//Has less than 1 day passed
-				//since generating token?
-				return ms / dayMs < 1
-			}
-		}
 	})
+
+	AdminToken.prototype.isValid = function() {
+		let ms = Date.now() - this.createdAt
+		let dayMs = 1000*60*60*24
+		
+		//Has less than 1 day passed
+		//since generating token?
+		return ms / dayMs < 1
+	}
 
 	return AdminToken
 }

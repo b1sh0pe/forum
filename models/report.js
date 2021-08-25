@@ -10,24 +10,23 @@ module.exports = (sequelize, DataTypes) => {
 				}
 			}
 		}
-	}, {
-		classMethods: {
-			associate (models) {
-				Report.belongsTo(models.User, { as: 'FlaggedByUser' })
-				Report.belongsTo(models.Post)
-			},
-			InvalidPostId (value) {
-				return new sequelize.ValidationError('Post id is not valid', [
-					new sequelize.ValidationErrorItem(
-						'Post id is not valid',
-						'Validation error',
-						'postId',
-						value
-					)
-				])
-			}
-		}
 	})
+
+	Report.associate = function (models) {
+		Report.belongsTo(models.User, { as: 'FlaggedByUser' })
+		Report.belongsTo(models.Post)
+	}
+
+	Report.InvalidPostId = function (value) {
+		return new sequelize.ValidationError('Post id is not valid', [
+			new sequelize.ValidationErrorItem(
+				'Post id is not valid',
+				'Validation error',
+				'postId',
+				value
+			)
+		])
+	}
 
 	return Report
 }

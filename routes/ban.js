@@ -54,7 +54,7 @@ router.get('/', async (req, res, next) => {
 
 router.delete('/:ban_id', async (req, res, next) => {
 	try {
-		let ban = await Ban.findById(req.params.ban_id)
+		let ban = await Ban.findByPk(req.params.ban_id)
 		if(!ban) throw Errors.sequelizeValidation(Sequelize, {
 			error: 'ban does not exist',
 			value: req.body.userId

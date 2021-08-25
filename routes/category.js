@@ -171,7 +171,7 @@ router.put('/:category_id', async (req, res, next) => {
 				value: id
 			})
 		} else {
-			let ret = await Category.findById(id)
+			let ret = await Category.findByPk(id)
 			res.json(ret.toJSON())
 		}
 	} catch(e) { next(e) }
@@ -179,7 +179,7 @@ router.put('/:category_id', async (req, res, next) => {
 
 router.delete('/:id', async (req, res, next) => {
 	try {
-		let category = await Category.findById(req.params.id)
+		let category = await Category.findByPk(req.params.id)
 		if(!category) throw Errors.sequelizeValidation(Sequelize, {
 			error: 'category id does not exist',
 			value: req.params.id

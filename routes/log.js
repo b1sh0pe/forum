@@ -57,7 +57,7 @@ router.post('/', async (req, res, next) => {
 	try {
 		let thread, user
 		if(req.body.route === 'thread') {
-			thread = await Thread.findById(req.body.resourceId)
+			thread = await Thread.findByPk(req.body.resourceId)
 
 			if(!thread) throw Errors.sequelizeValidation(Sequelize, {
 				error: 'thread does not exist',
@@ -67,7 +67,7 @@ router.post('/', async (req, res, next) => {
 			req.body.route === 'userPosts' ||
 			req.body.route === 'userThreads'
 		) {
-			user = await User.findById(req.body.resourceId)
+			user = await User.findByPk(req.body.resourceId)
 
 			if(!user) throw Errors.sequelizeValidation(Sequelize, {
 				error: 'user does not exist',

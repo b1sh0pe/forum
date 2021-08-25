@@ -7,7 +7,7 @@ const Errors = require('../lib/errors')
 router.get('/:id', async (req, res, next) => {
 	try {
 		let id = req.params.id
-		let pollQuestion = await PollQuestion.findById(id, {
+		let pollQuestion = await PollQuestion.findByPk(id, {
 			include: [
 				{ model: User, attributes: { exclude: ['hash'] } },
 				{ model: PollAnswer, include: [PollVote] }
@@ -60,7 +60,7 @@ router.all('*', (req, res, next) => {
 router.post('/', async (req, res, next) => {
 	try {
 		let threadId = req.body.threadId
-		let thread = await Thread.findById(req.body.threadId)
+		let thread = await Thread.findByPk(req.body.threadId)
 		if(!thread) {
 			throw Errors.sequelizeValidation(Sequelize, {
 				error: 'invalid thread id',
@@ -122,7 +122,7 @@ router.post('/:id', async (req, res, next) => {
 			value: req.params.id
 		})
 
-		let poll = await PollQuestion.findById(req.params.id, {
+		let poll = await PollQuestion.findByPk(req.params.id, {
 			include: [PollAnswer]
 		})
 		if(!poll) throw Errors.sequelizeValidation(Sequelize, {

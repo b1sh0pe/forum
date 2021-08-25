@@ -24,16 +24,6 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.BOOLEAN,
 			defaultValue: false
 		}
-	}, {
-		classMethods: {
-			set (values) {
-				values.id = 1
-				return Settings.upsert(values)
-			},
-			get () {
-				return Settings.findById(1)
-			}
-		}
 	})
 
 	return Settings
